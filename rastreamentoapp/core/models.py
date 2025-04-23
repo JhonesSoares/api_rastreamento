@@ -40,12 +40,21 @@ class Vehicle(models.Model):
         return f"{self.user} ({self.type_vehicle}: {self.model} - {self.plate})"
 
 class Location(models.Model):
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['timestamp']),
+        ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='locations')
     latitude = models.FloatField()
     longitude = models.FloatField()
     speed = models.FloatField()
     timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.vehicle.user} ({self.vehicle.type_vehicle}: {self.vehicle.model}-{self.vehicle.plate}, Localização: {self.latitude}, {self.longitude})"
 
 class Geofence(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
