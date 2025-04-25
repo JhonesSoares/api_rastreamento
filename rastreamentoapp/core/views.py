@@ -73,6 +73,7 @@ class LocationViewSet(viewsets.ModelViewSet):
         """
         Método sobrescrito para Evitar que o banco de dados fique
         sobrecarregado com dados inúteis ou redundantes.
+        Método que limita o evio de dados pa o banco Locations. (localização_recente < 10 metros)
         """
         data = request.data
         vehicle_id = data.get("vehicle")

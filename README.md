@@ -25,4 +25,4 @@ Oferecer uma API robusta para rastreamento de veículos em tempo real, integrand
 - **Linguagens:** Python, Django Rest Framework
 - **Banco de Dados:** PostgreSQL  
 - **Docker:** Docker & Docker Compose  
-- **Outros:** JWT Auth, WebSocket (para tempo real)
+- **Outros:** JWT Auth
