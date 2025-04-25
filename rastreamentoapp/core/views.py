@@ -1,4 +1,6 @@
-from rest_framework import viewsets, permissions, serializers
+from math import radians, cos, sin, asin, sqrt
+
+from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -22,6 +24,9 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+
+
+
 class VehicleViewSet(viewsets.ModelViewSet):
     #permission_classes = (IsAuthenticated, IsSuperOrOwner)
     queryset = Vehicle.objects.all()
@@ -44,9 +49,71 @@ class VehicleViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
     
 
+
+
 class LocationViewSet(viewsets.ModelViewSet):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
+
+    def haversine(self, lat1, lon1, lat2, lon2):
+        """
+        A fórmula de Haversine calcula a distância entre dois pontos na Terra 
+        levando em conta a curvatura do planeta (geodésica).
+        Raio da terra em metros
+        """
+        R = 6371000
+        lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+        dlat = lat2 - lat1 
+        dlon = lon2 - lon1 
+        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+        c = 2 * asin(sqrt(a)) 
+        return R * c
+    
+    def create(self, request, *args, **kwargs):
+        """
+        Método sobrescrito para Evitar que o banco de dados fique
+        sobrecarregado com dados inúteis ou redundantes.
+        """
+        data = request.data
+        vehicle_id = data.get("vehicle")
+
+        try:
+            vehicle = Vehicle.objects.get(id=vehicle_id)
+        except Vehicle.DoesNotExist:
+            return Response({"detail": "Veículo não encontrado."}, status=404)
+
+        last_location = vehicle.locations.order_by('-timestamp').first() # última localização
+        #print(f'ULTIMA LOCALIZAOOOOOOOOO {type(last_location)} -- {last_location}')
+
+        if last_location:
+            lat1 = float(data.get("latitude"))
+            lon1 = float(data.get("longitude"))
+
+            lat2 = last_location.latitude
+            lon2 = last_location.longitude
+
+            distance = self.haversine(lat1, lon1, lat2, lon2)
+            time_diff = timezone.now() - last_location.timestamp
+            print("Distância:", distance)
+            print("Tempo decorrido:", time_diff)
+
+            if distance < 10:
+                data = {
+                    "vehicle": request.data.get("vehicle"),
+                    "latitude": float(request.data.get("latitude")),
+                    "longitude": float(request.data.get("longitude")),
+                    "speed": float(request.data.get("speed", 0.0))
+                }
+                serializer = self.get_serializer(data=data)
+                serializer.is_valid(raise_exception=True)
+                print(f'"detail": "Registro ignorado: distância < 10m e tempo < 30s."')
+                return Response(serializer.data, status=200)
+                #return Response({"detail": "Registro ignorado: distância < 10m e tempo < 30s."}, status=200)
+
+        return super().create(request, *args, **kwargs)    
+
+
+
 
 class GeofenceViewSet(viewsets.ModelViewSet):
     queryset = Geofence.objects.all()
