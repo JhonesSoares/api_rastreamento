@@ -7,3 +7,4 @@ Markdown==3.7
 PyJWT==2.9.0
 tzdata==2025.2
 psycopg2-binary>=2.9.6,<2.10
+requests==2.32.3
