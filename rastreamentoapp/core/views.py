@@ -15,6 +15,14 @@ from .serializers import (
 )
 
 
+
+from django.shortcuts import render
+
+# Create your views here.
+def index(request):
+    return render(request, 'core/index.html')
+
+
 class IsSuperOrOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return request.user.type == 'super' or obj.user == request.user
@@ -32,11 +40,10 @@ class VehicleViewSet(viewsets.ModelViewSet):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
 
-
     @action(detail=True, methods=['get'])
     def recent_locations(self, request, pk=None):
         """
-        Returns the vehicle's locations from the last 24 hours.
+        Retorna as localizações dos veículos das últimas 24 horas.
         """
         vehicle = self.get_object()
 
@@ -48,9 +55,6 @@ class VehicleViewSet(viewsets.ModelViewSet):
         serializer = LocationSerializer(locations, many=True)
         return Response(serializer.data)
     
-
-
-
 class LocationViewSet(viewsets.ModelViewSet):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
@@ -84,7 +88,6 @@ class LocationViewSet(viewsets.ModelViewSet):
             return Response({"detail": "Veículo não encontrado."}, status=404)
 
         last_location = vehicle.locations.order_by('-timestamp').first() # última localização
-        #print(f'ULTIMA LOCALIZAOOOOOOOOO {type(last_location)} -- {last_location}')
 
         if last_location:
             lat1 = float(data.get("latitude"))
