@@ -37,7 +37,7 @@ Este sistema permite o rastreamento de dispositivos em tempo real, utilizando um
 1. **Clone o repositório:**
 
    ```bash
-   git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
+   git clone https://github.com/JhonesSoares/api_rastreamento.git
    cd seu-repositorio
 
    docker-compose up --build
