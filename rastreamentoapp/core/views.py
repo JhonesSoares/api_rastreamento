@@ -1,78 +1,74 @@
-from math import radians, cos, sin, asin, sqrt
-
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-
 from datetime import timedelta
-from django.utils import timezone
-
-from .models import User, Vehicle, Location, Geofence, Alert, Report, Command
-from .serializers import (
-    UserSerializer, VehicleSerializer, LocationSerializer,
-    GeofenceSerializer, AlertSerializer, ReportSerializer, CommandSerializer
-)
-
-
+from math import asin, cos, radians, sin, sqrt
 
 from django.shortcuts import render
+from django.utils import timezone
+from rest_framework import permissions, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+from .models import Location, User, Vehicle
+from .serializers import LocationSerializer, UserSerializer, VehicleSerializer
+
 
 # Create your views here.
 def index(request):
-    return render(request, 'core/index.html')
+    return render(request, "core/index.html")
 
 
 class IsSuperOrOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        return request.user.type == 'super' or obj.user == request.user
+        return request.user.type == "super" or obj.user == request.user
+
 
 class UserViewSet(viewsets.ModelViewSet):
-    #permission_classes = (IsAuthenticated, IsSuperOrOwner) ## AUTENTICAÇÃO VAI TOKEN JWT
+    # permission_classes = (IsAuthenticated, IsSuperOrOwner) ## AUTENTICAÇÃO VAI TOKEN JWT
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
-
-
 class VehicleViewSet(viewsets.ModelViewSet):
-    #permission_classes = (IsAuthenticated, IsSuperOrOwner)
+    # permission_classes = (IsAuthenticated, IsSuperOrOwner)
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=["get"])
     def recent_locations(self, request, pk=None):
         """
         Retorna as localizações dos veículos das últimas 24 horas.
         """
         vehicle = self.get_object()
 
-        if vehicle.status == 'offline':
-            return Response({"detail": "Vehicle is offline and not sending location data."}, status=200)
+        if vehicle.status == "offline":
+            return Response(
+                {"detail": "Vehicle is offline and not sending location data."},
+                status=200,
+            )
 
         last_24_hours = timezone.now() - timedelta(days=1)
         locations = vehicle.locations.filter(timestamp__gte=last_24_hours)
         serializer = LocationSerializer(locations, many=True)
         return Response(serializer.data)
-    
+
+
 class LocationViewSet(viewsets.ModelViewSet):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
 
     def haversine(self, lat1, lon1, lat2, lon2):
         """
-        A fórmula de Haversine calcula a distância entre dois pontos na Terra 
+        A fórmula de Haversine calcula a distância entre dois pontos na Terra
         levando em conta a curvatura do planeta (geodésica).
         Raio da terra em metros
         """
         R = 6371000
         lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
-        dlat = lat2 - lat1 
-        dlon = lon2 - lon1 
-        a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-        c = 2 * asin(sqrt(a)) 
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+        a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+        c = 2 * asin(sqrt(a))
         return R * c
-    
+
     def create(self, request, *args, **kwargs):
         """
         Método sobrescrito para Evitar que o banco de dados fique
@@ -87,7 +83,9 @@ class LocationViewSet(viewsets.ModelViewSet):
         except Vehicle.DoesNotExist:
             return Response({"detail": "Veículo não encontrado."}, status=404)
 
-        last_location = vehicle.locations.order_by('-timestamp').first() # última localização
+        last_location = vehicle.locations.order_by(
+            "-timestamp"
+        ).first()  # última localização
 
         if last_location:
             lat1 = float(data.get("latitude"))
@@ -106,31 +104,12 @@ class LocationViewSet(viewsets.ModelViewSet):
                     "vehicle": request.data.get("vehicle"),
                     "latitude": float(request.data.get("latitude")),
                     "longitude": float(request.data.get("longitude")),
-                    "speed": float(request.data.get("speed", 0.0))
+                    "speed": float(request.data.get("speed", 0.0)),
                 }
                 serializer = self.get_serializer(data=data)
                 serializer.is_valid(raise_exception=True)
-                print(f'"detail": "Registro ignorado: distância < 10m e tempo < 30s."')
+                print('"detail": "Registro ignorado: distância < 10m e tempo < 30s."')
                 return Response(serializer.data, status=200)
-                #return Response({"detail": "Registro ignorado: distância < 10m e tempo < 30s."}, status=200)
+                # return Response({"detail": "Registro ignorado: distância < 10m e tempo < 30s."}, status=200)
 
-        return super().create(request, *args, **kwargs)    
-
-
-
-
-class GeofenceViewSet(viewsets.ModelViewSet):
-    queryset = Geofence.objects.all()
-    serializer_class = GeofenceSerializer
-
-class AlertViewSet(viewsets.ModelViewSet):
-    queryset = Alert.objects.all()
-    serializer_class = AlertSerializer
-
-class ReportViewSet(viewsets.ModelViewSet):
-    queryset = Report.objects.all()
-    serializer_class = ReportSerializer
-
-class CommandViewSet(viewsets.ModelViewSet):
-    queryset = Command.objects.all()
-    serializer_class = CommandSerializer
+        return super().create(request, *args, **kwargs)

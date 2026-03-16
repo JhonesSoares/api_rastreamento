@@ -1,5 +1,5 @@
-version: '3.9'
- 
+#version: '3.9'
+
 services:
   rastreamentoapp:
     container_name: rastreamentoapp
@@ -14,9 +14,9 @@ services:
     env_file:
       - ./dotenv_files/.env
     depends_on:
-      - psql
-  psql:
-    container_name: psql
+      - psql_rastreamento
+  psql_rastreamento:
+    container_name: psql_rastreamento
     image: postgres:14-alpine
     volumes:
       - ./data/postgres/data:/var/lib/postgresql/data/

@@ -33,10 +33,10 @@
 
   async function atualizarLocalizacao() {
     try {
-      const responseLocation = await fetch('http://127.0.0.1:8000/api/v1/vehicles/2ca37d2b-c229-4fa2-94a8-82cab49e8003/recent_locations/'); // Substitua pela URL da sua API real
+      const responseLocation = await fetch('http://127.0.0.1:8000/api/v1/vehicles/85de1fee-01d1-446e-8643-e64e02d31484/recent_locations/'); // Substitua pela URL da sua API real
       const dataLocation = await responseLocation.json();
 
-      const responseVehicle = await fetch('http://127.0.0.1:8000/api/v1/vehicles/2ca37d2b-c229-4fa2-94a8-82cab49e8003/'); // Substitua pela URL da sua API real
+      const responseVehicle = await fetch('http://127.0.0.1:8000/api/v1/vehicles/85de1fee-01d1-446e-8643-e64e02d31484/'); // Substitua pela URL da sua API real
       const dataVehicle = await responseVehicle.json();
 
       console.log(` ---->>>> ${dataVehicle}`)

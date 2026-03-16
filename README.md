@@ -1,28 +1,46 @@
-# RV Backend - Sistema de Rastreamento Veicular
+# 📍 Real-Time Tracking API
 
-Backend do sistema de rastreamento veicular com monitoramento em tempo real, envio de comandos remotos, alertas de segurança e geração de relatórios. Este projeto foi desenvolvido com foco em escalabilidade, segurança e facilidade de integração.
+Uma API robusta de rastreamento geográfico desenvolvida com **Django Rest Framework**, focada em performance e economia de recursos de banco de dados.
 
-## Objetivo
+## 🚀 Sobre o Projeto
 
-Oferecer uma API robusta para rastreamento de veículos em tempo real, integrando funcionalidades de segurança, controle e gerenciamento para diferentes tipos de usuários.
+Este sistema permite o rastreamento de dispositivos em tempo real, utilizando uma lógica de persistência inteligente: as coordenadas só são salvas no banco de dados após o dispositivo percorrer uma distância mínima de **10 metros**. Isso evita redundância de dados e sobrecarga no PostgreSQL.
 
-## Público-Alvo
+### Diferenciais Técnicos:
 
-- Empresas de transporte e logística  
-- Proprietários de veículos particulares  
-- Frotas empresariais
+- **Otimização de Banco:** Filtro de distância para evitar gravacões desnecessárias.
+- **Segurança:** Autenticação via JWT (JSON Web Tokens).
+- **Simulação:** Script incluso para simular trajetos reais via terminal.
+- **Visualização:** Interface frontend com mapa para monitoramento live.
+- **Infraestrutura:** Ambiente 100% containerizado com Docker.
 
-## Funcionalidades
+---
 
-- Monitoramento em tempo real de veículos  
-- Envio de comandos remotos para dispositivos  
-- Alertas de segurança (ex: cerca eletrônica, velocidade)  
-- Geração de relatórios e históricos de localização  
-- Cadastro e autenticação de usuários
+## 🛠️ Stack Tecnológica
 
-## 🛠️ Tecnologias Utilizadas
+- **Backend:** Python 3.x, Django, Django Rest Framework (DRF)
+- **Banco de Dados:** PostgreSQL
+- **Autenticação:** Simple JWT
+- **Containerização:** Docker & Docker Compose
+- **Frontend (Mapa):** HTML/JS (Leaflet ou Google Maps API)
 
-- **Linguagens:** Python, Django Rest Framework
-- **Banco de Dados:** PostgreSQL  
-- **Docker:** Docker & Docker Compose  
-- **Outros:** JWT Auth
+---
+
+## 📦 Como Executar
+
+### Pré-requisitos
+
+- Docker e Docker Compose instalados.
+
+### Passos para Rodar:
+
+1. **Clone o repositório:**
+
+   ```bash
+   git clone [https://github.com/seu-usuario/seu-repositorio.git](https://github.com/seu-usuario/seu-repositorio.git)
+   cd seu-repositorio
+
+   docker-compose up --build
+   ```
+
+script para simular: rastreamentoapp/utils/simulate_location.py
